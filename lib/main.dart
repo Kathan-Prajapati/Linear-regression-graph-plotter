@@ -68,7 +68,7 @@ class _FitLineScreenState extends State<FitLineScreen> {
     }
 
     int n = _points.length;
-    double sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
+    double sumX = 0.00, sumY = 0.00, sumXY = 0.00, sumX2 = 0.00;
 
     for (var point in _points) {
       sumX += point.x;
@@ -122,6 +122,12 @@ class _FitLineScreenState extends State<FitLineScreen> {
     });
   }
 
+  void _resetMinX() {
+    setState(() {
+      _minX = 0;
+    });
+  }
+
   void _increaseMaxX() {
     setState(() {
       _maxX += 10;
@@ -131,6 +137,12 @@ class _FitLineScreenState extends State<FitLineScreen> {
   void _decreaseMaxX() {
     setState(() {
       _maxX -= 10;
+    });
+  }
+
+  void _resetMaxX() {
+    setState(() {
+      _maxX = 10;
     });
   }
 
@@ -146,6 +158,12 @@ class _FitLineScreenState extends State<FitLineScreen> {
     });
   }
 
+  void _resetMinY() {
+    setState(() {
+      _minY = 0;
+    });
+  }
+
   void _increaseMaxY() {
     setState(() {
       _maxY += 10;
@@ -155,6 +173,12 @@ class _FitLineScreenState extends State<FitLineScreen> {
   void _decreaseMaxY() {
     setState(() {
       _maxY -= 10;
+    });
+  }
+
+  void _resetMaxY() {
+    setState(() {
+      _maxY = 10;
     });
   }
 
@@ -171,23 +195,22 @@ class _FitLineScreenState extends State<FitLineScreen> {
 
     double m = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
     double c = (sumY - m * sumX) / n;
-    String equation = 'y = ${m.toStringAsFixed(2)}x + ${c.toStringAsFixed(2)}';
+    String equation;
+    if (c >= 0) {
+      equation = 'y = ${m.toStringAsFixed(4)}x + ${c.toStringAsFixed(4)}';
+    } else {
+      c = c * (-1);
+      equation = 'y = ${m.toStringAsFixed(4)}x - ${c.toStringAsFixed(4)}';
+    }
 
-    /*String relationshipMessage = _rCoefficient >= -0.5 && _rCoefficient <= 0.5
-        ? "It's unwise to use a linear regression model for your data."
-        : "It's acceptable to use a linear regression model for your data.";*/
     String relationshipMessage;
 
-    if(_rCoefficient<=0.5 && _rCoefficient>=-0.5){
-      relationshipMessage="It's unwise to use a linear regression model for your data.";
-    }
-
-    else if((_rCoefficient>0.5 && _rCoefficient<0.8) || (_rCoefficient<-0.5 && _rCoefficient>-0.8)){
-      relationshipMessage="It's acceptable to use a linear regression model for your data.";
-    }
-
-    else{
-      relationshipMessage="A linear model will be most accurate for your data.";
+    if (_rCoefficient <= 0.5 && _rCoefficient >= -0.5) {
+      relationshipMessage = "It's unwise to use a linear regression model for your data.";
+    } else if ((_rCoefficient > 0.5 && _rCoefficient < 0.8) || (_rCoefficient < -0.5 && _rCoefficient > -0.8)) {
+      relationshipMessage = "It's acceptable to use a linear regression model for your data.";
+    } else {
+      relationshipMessage = "A linear model will be most accurate for your data.";
     }
 
     return Scaffold(
@@ -299,6 +322,32 @@ class _FitLineScreenState extends State<FitLineScreen> {
                 ),
               ],
             ),
+            SizedBox(height: 10),
+            // Reset Buttons Row
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  onPressed: _resetMinX,
+                  child: Text('Reset X Min'),
+                ),
+                SizedBox(width: 10),
+                ElevatedButton(
+                  onPressed: _resetMaxX,
+                  child: Text('Reset X Max'),
+                ),
+                SizedBox(width: 10),
+                ElevatedButton(
+                  onPressed: _resetMinY,
+                  child: Text('Reset Y Min'),
+                ),
+                SizedBox(width: 10),
+                ElevatedButton(
+                  onPressed: _resetMaxY,
+                  child: Text('Reset Y Max'),
+                ),
+              ],
+            ),
             SizedBox(height: 20),
             Expanded(
               child: LineChart(
@@ -321,7 +370,6 @@ class _FitLineScreenState extends State<FitLineScreen> {
                     LineChartBarData(
                       spots: _linePoints,
                       isCurved: false,
-                      //color: Colors.blue,
                       dotData: FlDotData(show: false),
                       belowBarData: BarAreaData(show: false),
                     ),
@@ -341,7 +389,7 @@ class _FitLineScreenState extends State<FitLineScreen> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    'R: ${_rCoefficient.toStringAsFixed(2)}',
+                    'R: ${_rCoefficient.toStringAsFixed(3)}',
                     style: TextStyle(fontSize: 18, color: Colors.orange, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 5),
@@ -358,6 +406,8 @@ class _FitLineScreenState extends State<FitLineScreen> {
     );
   }
 }
+
+
 
 
 
